@@ -133,10 +133,26 @@ class Usuario {
 			':PASSWORD'=>$this->getDessenha(),
 			':ID'=>$this->getIdusuario()
 		));
+	}
 
+	//funcao que realiza o DELETE da informacao na tabela
+	public function delete(){
+		$sql = new Sql();
+
+		$sql->query("DELETE FROm tb_usuarios WHERE idusuario = :ID", array(
+
+			':ID'=>$this->getIdusuario()
+
+		));
+
+		$this->setIdusuario(0);
+		$this->setDeslogin("");
+		$this->setDessenha("");
+		$this->setDtcadastro(new DateTime());
 
 
 	}
+
 
 	//funcao, metodo Construtor, que passa por parametro o login e senha do usuario (tabela tb_usuario)
 	public function __construct($login = "", $password =""){
