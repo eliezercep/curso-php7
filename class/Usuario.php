@@ -51,12 +51,8 @@ class Usuario {
 
 		//if(isset($results()) posso fazer desse jeito ou desse jeito (abaixo)
 		if(count($results) > 0){
-			$row = $results[0];
-
-			$this->setIdusuario($row['idusuario']);
-			$this->setDeslogin($row['deslogin']);
-			$this->setDessenha($row['dessenha']);
-			$this->setDtcadastro(new DateTime($row['dtcadastro']));
+			
+			$this->setData($results[0]);
 		}
 	}
 
@@ -79,7 +75,7 @@ class Usuario {
 		));
 	}
 
-
+	//Funcao que realiza o login, passando por parametros Login e Senha
 	public function login($login, $password){
 		$sql = new Sql();
 
@@ -90,19 +86,64 @@ class Usuario {
 
 		//if(isset($results()) posso fazer desse jeito ou desse jeito (abaixo)
 		if(count($results) > 0){
-			$row = $results[0];
 
-			$this->setIdusuario($row['idusuario']);
-			$this->setDeslogin($row['deslogin']);
-			$this->setDessenha($row['dessenha']);
-			$this->setDtcadastro(new DateTime($row['dtcadastro']));
+			$this->setData($results[0]);
+
 		}else{
 
 			throw new Exception("Login e/ou senha inválidos");
-			
-
+		
 		}
 	}
+
+	public function setData($data){
+		$this->setIdusuario($data['idusuario']);
+		$this->setDeslogin($data['deslogin']);
+		$this->setDessenha($data['dessenha']);
+		$this->setDtcadastro(new DateTime($data['dtcadastro']));	
+	}
+
+	//funcao que realiza a insercao de dados na tabeas tb_usuarios usando funcao do mysql
+	public function insert(){
+		
+		$sql = new Sql();
+
+		$results = $sql->select("CALL sp_usuarios_insert(:LOGIN, :SENHA)", array(
+
+			':LOGIN'=>$this->getDeslogin(),
+			':SENHA'=>$this->getDessenha()	
+		));
+
+		if(count($results) > 0){
+			$this->setData($results[0]);
+		}
+
+	}
+
+	//funcao que realiza a atualizacao das informacoes
+	public function update($login, $password){
+		
+		$this->setDeslogin($login);
+		$this->setDessenha($password);
+
+		$sql = new Sql();
+
+		$sql->query("UPDATE tb_usuarios SET deslogin = :LOGIN, dessenha = :PASSWORD WHERE idusuario = :ID", array(
+			':LOGIN'=>$this->getDeslogin(),
+			':PASSWORD'=>$this->getDessenha(),
+			':ID'=>$this->getIdusuario()
+		));
+
+
+
+	}
+
+	//funcao, metodo Construtor, que passa por parametro o login e senha do usuario (tabela tb_usuario)
+	public function __construct($login = "", $password =""){
+		$this->setDeslogin($login);
+		$this->setDessenha($password);
+	}
+
 
 
 	//Funcao Magica, mostras as informacoes da tabelaa ususarios, quando a classe for instanciada
